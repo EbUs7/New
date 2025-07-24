@@ -660,13 +660,18 @@ button {
     margin-top: 20px;
 }
 
-/* Specific styling for the TON Connect UI button */
-#ton-connect {
-    margin-top: 20px; /* Space above the TonConnectUI button */
+/* Specific styling for the TON Connect UI button wrapper */
+.rolls-action-button-wrapper {
+    margin-top: 20px; /* Space above buttons */
     width: 90%;
     max-width: 300px;
+    /* This centers the TonConnect button as well, ensuring consistent width */
+    margin-left: auto;
+    margin-right: auto;
 }
-#ton-connect > * { /* Target the TonConnectUI button directly */
+
+/* Target the TonConnectUI button directly for consistent styling */
+#ton-connect > * {
     width: 100% !important;
     height: auto !important;
     padding: 16px 30px !important;
@@ -677,8 +682,7 @@ button {
     color: #FFFFFF !important;
     box-shadow: 0 8px 20px rgba(0, 191, 255, 0.4) !important;
     transition: all 0.3s ease-in-out !important;
-    /* Remove default ton-connect button styles that might conflict */
-    border: none !important;
+    border: none !important; /* Remove default ton-connect button border */
     cursor: pointer;
 }
 #ton-connect > *:hover {
@@ -777,28 +781,6 @@ button {
     align-items: center;
 }
 /* Removed staking-summary as per request */
-/* .staking-summary {
-    width: 90%;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-.staking-summary p {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    font-size: 1em;
-    color: #B0B0B0;
-    padding-left: 5%;
-    padding-right: 5%;
-}
-.staking-summary p:last-of-type {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: #E0E0E0;
-    margin-top: 20px;
-} */
 .learn-more-link {
     display: block;
     text-align: center;
