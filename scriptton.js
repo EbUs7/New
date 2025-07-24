@@ -6,13 +6,14 @@ Document.addEventListener('DOMContentLoaded', () => {
     const bottomNavTabs = document.querySelectorAll('.bottom-nav li');
     const sectionContents = document.querySelectorAll('.section-content');
 
-    // --- 1. Start Screen Logic ---
-    startScreen.classList.add('active'); // Ensure active class is set for animation
+    // --- 1. Start Screen Logic (Fixed for proper transition) ---
+    // Ensure start screen is initially active for the fade-out effect to work.
+    // The 'active' class is already in HTML, so we just manage the fade-out.
     setTimeout(() => {
         startScreen.classList.add('fade-out');
         startScreen.addEventListener('animationend', () => {
             startScreen.classList.add('hide');
-            page.classList.remove('hide');
+            page.classList.remove('hide'); // Reveal the main page
         }, { once: true });
     }, 3000); // Show loading for 3 seconds
 
@@ -55,7 +56,7 @@ Document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. TON Connect Wallet & Rolls Logic ---
     const rollsInfoText = document.querySelector('.rolls-info-text');
-    const sendTransactionBtn = document.getElementById('sendTransactionBtn'); // Changed from payForRollsBtn
+    const sendTransactionBtn = document.getElementById('sendTransactionBtn');
     const codeEntrySection = document.querySelector('.code-entry-section');
     const confirmationCodeInput = document.getElementById('confirmationCodeInput');
     const verifyCodeBtn = document.getElementById('verifyCodeBtn');
@@ -95,9 +96,6 @@ Document.addEventListener('DOMContentLoaded', () => {
             referralAfterCodeMessage.classList.add('hide');
         }
     });
-
-    // Manually trigger connect if needed (though TonConnectUI button handles this)
-    // Removed connectWalletBtn and its event listener as per request.
 
     // Send Transaction for Rolls (2 TON)
     sendTransactionBtn.addEventListener('click', async () => {
@@ -199,7 +197,7 @@ Document.addEventListener('DOMContentLoaded', () => {
             validUntil: Math.floor(Date.now() / 1000) + 360, // 6 minutes
             messages: [
                 {
-                    address: "UQBADbfYuE5qGyN5ITs0FjWZ9suGQYuvy2HQ3cQ8wpyRyx0f", // Same destination address as Rolls for consistency or update if different
+                    address: "UQBADbfYuE5qGyN5ITs0FjWZ9suGQYuvy2HQ3cQ8wpyRyx0f", // Same destination address as Rolls or update if different
                     amount: "10000000000" // 10 TON in nanotons
                 }
             ]
@@ -233,7 +231,8 @@ Document.addEventListener('DOMContentLoaded', () => {
     function generateReferralLink() {
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
             const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-            referralLinkInput.value = `http://t.me/rollstvBot?start=${userId}`; // Use your bot username
+            // Using @rollstvBot as specified
+            referralLinkInput.value = `http://t.me/rollstvBot?start=${userId}`; 
         } else {
             referralLinkInput.value = "http://t.me/rollstvBot?start=YOUR_USER_ID"; // Fallback or for local testing
             console.warn("Telegram WebApp user ID not available. Using placeholder for referral link.");
