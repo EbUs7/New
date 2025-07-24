@@ -975,8 +975,8 @@ button {
     margin-bottom: 40px;
 }
 .team-photo {
-    width: 100px;
-    height: 100px;
+    width: 100px; /* Base width */
+    height: 133px; /* 100px * (4/3) = 133.33px for 3:4 aspect ratio */
     object-fit: cover;
     border-radius: 10px;
     border: 2px solid rgba(0, 191, 255, 0.3);
