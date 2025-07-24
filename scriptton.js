@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bottomNavTabs = document.querySelectorAll('.bottom-nav li');
     const sectionContents = document.querySelectorAll('.section-content');
 
-    // --- 1. Start Screen Logic (Original logic preserved + small robustness improvement) ---
+    // --- 1. Start Screen Logic ---
     startScreen.classList.add('active'); // Ensure active class is set for animation
     setTimeout(() => {
         startScreen.classList.add('fade-out');
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. TON Connect Wallet & Rolls Logic ---
     const rollsInfoText = document.querySelector('.rolls-info-text');
-    const connectWalletBtn = document.getElementById('connectWalletBtn'); // Explicit button, kept as per request
+    // const connectWalletBtn = document.getElementById('connectWalletBtn'); // Removed as per request
     const sendTransactionBtn = document.getElementById('sendTransactionBtn');
     const codeEntrySection = document.querySelector('.code-entry-section');
     const confirmationCodeInput = document.getElementById('confirmationCodeInput');
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wallet) {
             isWalletConnected = true;
             rollsInfoText.textContent = `Wallet connected: ${wallet.account.address.substring(0, 6)}...${wallet.account.address.substring(wallet.account.address.length - 4)}. Now, pay 2 TON to roll!`;
-            if(connectWalletBtn) connectWalletBtn.classList.add('hide'); // Hide custom connect button
+            // if(connectWalletBtn) connectWalletBtn.classList.add('hide'); // No longer needed
             if(sendTransactionBtn) {
                 sendTransactionBtn.disabled = false; // Enable send button
                 sendTransactionBtn.classList.remove('hide'); // Show send button
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             isWalletConnected = false;
             rollsInfoText.textContent = 'Connect your TON wallet to participate.';
-            if(connectWalletBtn) connectWalletBtn.classList.remove('hide'); // Show custom connect button
+            // if(connectWalletBtn) connectWalletBtn.classList.remove('hide'); // No longer needed
             if(sendTransactionBtn) {
                 sendTransactionBtn.disabled = true; // Disable send button
                 sendTransactionBtn.classList.add('hide'); // Hide send button
@@ -116,26 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Connect wallet - called by connectWalletBtn
-    if (connectWalletBtn) { // Check if element exists before adding listener
-        connectWalletBtn.addEventListener("click", async () => {
-            if (isWalletConnected){
-                console.log("Wallet already connected");
-                return;
-            }
-            try {
-                const connectedWallet = await tonConnectUI.connectWallet();
-                if (connectedWallet) {
-                    isWalletConnected = true;
-                    console.log("Wallet connected", connectedWallet);
-                    // UI update is handled by onStatusChange
-                }
-            } catch (error) {
-                console.error("Error connecting to wallet: ", error);
-                rollsInfoText.textContent = 'Wallet connection failed. Please try again.';
-            }
-        });
-    }
+    // Connect wallet - TonConnectUI handles its own button click
+    // The custom connectWalletBtn and its listener are removed.
 
     // Send Transaction - called by sendTransactionBtn
     if (sendTransactionBtn) { // Check if element exists before adding listener
@@ -149,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isWalletConnected) {
                 console.error("Please connect your wallet first.");
                 rollsInfo.textContent = 'Please connect your wallet first!';
+                tonConnectUI.openModal(); // Open connect wallet modal
                 return;
             }
 
@@ -253,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 messages: [
                     {
                         address: "UQBADbfYuE5qGyN5ITs0FjWZ9suGQYuvy2HQ3cQ8wpyRyx0f", // Destination address for 10 TON
-                        amount: "10000000000" // 10 TON in nanotons
+                        amount: "10000000000" // 10 TON in nanotons (fixed amount as per request)
                     }
                 ]
             };
@@ -366,4 +349,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 8. Global Countdown Timer (Removed logic, now static) ---
     // The countdown element is now static in index.html, so no JavaScript is needed for it.
 });
-
