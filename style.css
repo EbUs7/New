@@ -525,7 +525,8 @@ button {
     padding: 16px 30px;
     border-radius: 30px;
     margin-top: 20px;
-    width: 90%;
+    width: 90%; /* Uniform width for action buttons */
+    max-width: 300px; /* Optional: max-width for large screens */
     box-shadow: 0 8px 20px rgba(0, 191, 255, 0.4);
     transition: all 0.3s ease-in-out;
     position: relative;
@@ -605,7 +606,8 @@ button {
     align-items: center;
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), inset 0 0 20px rgba(0, 191, 255, 0.3);
+    /* Removed the blue glow/shadow as per request */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); /* Keep a subtle shadow */
 }
 .spinning-wheel {
     width: 100%;
@@ -657,6 +659,45 @@ button {
     width: 100%;
     margin-top: 20px;
 }
+
+/* Specific styling for the TON Connect UI button */
+#ton-connect {
+    margin-top: 20px; /* Space above the TonConnectUI button */
+    width: 90%;
+    max-width: 300px;
+}
+#ton-connect > * { /* Target the TonConnectUI button directly */
+    width: 100% !important;
+    height: auto !important;
+    padding: 16px 30px !important;
+    font-size: 1.1em !important;
+    font-weight: 600 !important;
+    border-radius: 30px !important;
+    background: linear-gradient(90deg, #00BFFF 0%, #007bff 100%) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 8px 20px rgba(0, 191, 255, 0.4) !important;
+    transition: all 0.3s ease-in-out !important;
+    /* Remove default ton-connect button styles that might conflict */
+    border: none !important;
+    cursor: pointer;
+}
+#ton-connect > *:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 25px rgba(0, 191, 255, 0.6) !important;
+    background: linear-gradient(90deg, #00CFFF 0%, #0088ff 100%) !important;
+}
+#ton-connect > *:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 4px 10px rgba(0, 191, 255, 0.3) !important;
+}
+
+/* Unified style for action buttons in Rolls section */
+.rolls-action-button {
+    width: 90%; /* Make them consistent */
+    max-width: 300px; /* Max width for consistency with TON Connect UI button */
+    margin-top: 20px;
+}
+
 .code-entry-section {
     width: 100%;
     display: flex;
@@ -735,7 +776,8 @@ button {
     flex-direction: column;
     align-items: center;
 }
-.staking-summary {
+/* Removed staking-summary as per request */
+/* .staking-summary {
     width: 90%;
     margin-top: 30px;
     padding-top: 20px;
@@ -748,7 +790,7 @@ button {
     margin-bottom: 10px;
     font-size: 1em;
     color: #B0B0B0;
-    padding-left: 5%; /* Align with input group */
+    padding-left: 5%;
     padding-right: 5%;
 }
 .staking-summary p:last-of-type {
@@ -756,7 +798,7 @@ button {
     font-weight: 700;
     color: #E0E0E0;
     margin-top: 20px;
-}
+} */
 .learn-more-link {
     display: block;
     text-align: center;
@@ -1114,3 +1156,4 @@ footer {
 .bottom-nav li:hover span {
     color: #E0E0E0;
 }
+
